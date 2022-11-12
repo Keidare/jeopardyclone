@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href ="style.css">
+        <script>
+            function startGame(){
+                //variables i used
+                let catIds = [];
+                let categories = [];
+                let score = 0;
+                let clueTarget = null;
+                let clueDict = {};
+                let correct = true;
+
+                //pointers for the querySelectors
+                let gameBoard = document.querySelector(".board"); 
+                let cluePointer = document.querySelector(".clue"); 
+                let resultPointer = document.querySelector(".result"); 
+                let questionInputPointer = document.querySelector(".questionInput"); 
+                let scorePointer = document.querySelector(".scoreCount"); 
+                let formPointer = document.querySelector("form"); 
+                let resultContentPointer = document.querySelector(".resultText"); 
+                let correctAnswerPointer = document.querySelector(".correctAnswer"); 
+                let wrongAnswerPointer = document.querySelector(".wrongAnswer");
+                let inputPointer = document.querySelector("input[name=userAnswer]"); 
+                
+
+                function getData(){
+                    fetch('http://jservice.io/api/categories?count=54') // I made it into 54 because i would filter them afterwards to only contain 5 questions
+                    .then( response =>{
+                        return response.json();
+                    })
+                    .then(data =>{ 
+                        data.forEach(element => {
+                            if(element.clues_count == 5 && catIds.length < 7){
+                                catIds.push(element.id);
+                            }
+                        });
+                        catIds.splice(2,1) //remove the catId that has null,100,200,400,500 
+
+                        const cluesFromCategoryIds = catIds.map(catId => {
+                            return new Promise((resolve, reject) => {
+                            fetch(`https://jservice.io/api/category?id=${catId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                resolve(data);
+                            });
+                            });
+                        });
+                        
+                        Promise.all(cluesFromCategoryIds).then(categoriesWithClues =>{
+                            for (let x of categoriesWithClues){
+                                categories.push(x);
+                                let categoryColumn = document.createElement("div");
+                                categoryColumn.classList.add("col");
+                                categoryColumn.innerHTML = (
+                                    `<header>${x.title}</header>
+                                    <ul> </ul>`).trim();
+                                let ul = categoryColumn.querySelector("ul");
+                                for (let clue of x.clues){
+                                        ul.innerHTML += `<li><button data-id=${clue.id}>$${clue.value}</button></li>`;
+                                        clueDict[clue.id] = {
+                                            id: clue.id,
+                                            question: clue.question,
+                                            answer: clue.answer,
+                                            value: clue.value
+                                        };
+                                        console.log(clueDict[clue.id]);
+                                }
+                                gameBoard.appendChild(categoryColumn); //appends the column containing a category and the questions
+                            }
+                        });
+                    });
+                }
+                function updateScore(newScore){
+                    score += newScore;
+                    scorePointer.textContent = score;
+                }
+                function handleClicks(e){
+                    let targetClue = clueDict[e.target.dataset.id];
+                    e.target.classList.add("done");
+                    inputPointer.value = "";
+                    clueTarget = targetClue;
+                    cluePointer.textContent = clueTarget.question;
+                    let clueAnswer = clueTarget.answer;
+
+                    //we remove the weird things added to the answer and do the same below later
+                    clueAnswer = clueAnswer.replace("<i>", "");
+                    clueAnswer = clueAnswer.replace("</i>", "");
+                    clueAnswer = clueAnswer.replace(/"/g, "");
+                    clueAnswer = clueAnswer.replace(/^a /, "");
+                    clueAnswer = clueAnswer.replace(/^an /, ""); 
+                    resultContentPointer.textContent = clueAnswer;
+                    questionInputPointer.classList.remove("showResult");
+                    questionInputPointer.classList.add("visible");
+                    inputPointer.focus();
+                }
+
+                function handleFormSubmit(e){
+                    e.preventDefault();
+                    let correctAns = clueTarget.answer.toLowerCase();
+                    correctAns = correctAns.replace("<i>", "");
+                    correctAns = correctAns.replace("</i>", "");
+                    correctAns = correctAns.replace(/"/g, "");
+                    correctAns = correctAns.replace(/^a /, "");
+                    correctAns = correctAns.replace(/^an /, ""); 
+                    let userAns = inputPointer.value.trim().toLowerCase();
+
+
+                    correct = correctAns === userAns;
+
+                    if (correct){
+                        updateScore(clueTarget.value);
+                    }
+                    reveal(correct);
+                }
+
+                function reveal(bool){
+                    if (correct){
+                        correctAnswerPointer.style.display = "block";
+                        wrongAnswerPointer.style.display = "none";
+                    }
+                    else{
+                        correctAnswerPointer.style.display = "none";
+                        wrongAnswerPointer.style.display = "block";
+                    }
+                    questionInputPointer.classList.add("showResult");
+
+                    setTimeout(()=>{
+                        questionInputPointer.classList.remove("visible");
+                    }, 4000); //this is so the box is gone after 4 seconds
+                }
+
+                function init(){
+                    gameBoard.addEventListener("click", event =>{
+                        if (event.target.dataset.id){
+                            handleClicks(event);
+                        }
+                    });
+                    formPointer.addEventListener("submit", event =>{
+                        handleFormSubmit(event);
+                    });
+                    updateScore(0);
+                    getData();     
+                }
+            init();
+        }
+        //wait for everything before doing it
+        window.onload = startGame;
+        </script>
+    </head>
+    <body>
+        <section class="jeopardyBanner">
+            <p id="bannertext">Jeopardy!</p>
+            <p id="subtext">a web-based game with data from jservice.io</p>
+            <a href="#game">Play</a>
+        </section>
+        <section class ="jeopardyGame" id="game">
+            <div class="board">
+            </div>
+            <p id="scoreLabel">Score: <span class="scoreCount"></span></p>
+            <div class="questionInput">
+                <div class=questionInput-child>
+                <h2 class="clue"></h2>
+                <form autocomplete="off">
+                    <input name="userAnswer" type="text"/>
+                    <button type="submit">Enter</button>
+                </form>
+                <div class="result">
+                    <p class="correctAnswer">Winner winner chicken dinner!</p>
+                    <p class="wrongAnswer">Well that's sad.</p>
+                    <p class="resultAns">
+                        The right answer is <span class="resultText"></span>
+                    </p>
+                </div>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>
