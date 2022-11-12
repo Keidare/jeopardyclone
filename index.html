@@ -26,6 +26,8 @@
                 let correctAnswerPointer = document.querySelector(".correctAnswer"); 
                 let wrongAnswerPointer = document.querySelector(".wrongAnswer");
                 let inputPointer = document.querySelector("input[name=userAnswer]"); 
+                let finderPointer = document.querySelector("#finder");
+
                 
 
                 function getData(){
@@ -119,13 +121,18 @@
                 }
 
                 function reveal(bool){
+                    finderPointer.classList.remove("correctAnswer");
+                    finderPointer.classList.remove("wrongAnswer");
+                    finderPointer.textContent = "";
                     if (correct){
-                        correctAnswerPointer.style.display = "block";
-                        wrongAnswerPointer.style.display = "none";
+                        finderPointer.classList.add("correctAnswer");
+                        finderPointer.textContent = "Winner winner chicken dinner!";
+                        finderPointer.style.display = "block";
                     }
                     else{
-                        correctAnswerPointer.style.display = "none";
-                        wrongAnswerPointer.style.display = "block";
+                        finderPointer.classList.add("wrongAnswer")
+                        finderPointer.textContent = "Well that's sad. Better luck next time!";
+                        finderPointer.style.display = "block";
                     }
                     questionInputPointer.classList.add("showResult");
 
@@ -170,8 +177,7 @@
                     <button type="submit">Enter</button>
                 </form>
                 <div class="result">
-                    <p class="correctAnswer">Winner winner chicken dinner!</p>
-                    <p class="wrongAnswer">Well that's sad.</p>
+                    <p id="finder"></p>
                     <p class="resultAns">
                         The right answer is <span class="resultText"></span>
                     </p>
