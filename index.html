@@ -14,6 +14,7 @@
                 let clueTarget = null;
                 let clueDict = {};
                 let correct = true;
+                let idArray = []
 
                 //pointers for the querySelectors
                 let gameBoard = document.querySelector(".board"); 
@@ -63,20 +64,27 @@
                                     <ul> </ul>`).trim();
                                 let ul = categoryColumn.querySelector("ul");
                                 for (let clue of x.clues){
-                                        ul.innerHTML += `<li><button data-id=${clue.id}>$${clue.value}</button></li>`;
+                                        ul.innerHTML += `<li><button id=${clue.id} data-id=${clue.id}>$${clue.value}</button></li>`;
                                         clueDict[clue.id] = {
                                             id: clue.id,
                                             question: clue.question,
                                             answer: clue.answer,
                                             value: clue.value
                                         };
-                                        console.log(clueDict[clue.id]);
+                                        idArray.push(clue.id);
                                 }
                                 gameBoard.appendChild(categoryColumn); //appends the column containing a category and the questions
+                                for (let id of idArray){
+                                    if (localStorage.getItem(id) !== null){ // if it isn't null then it means it's present in localStorage
+                                        let idPointer = document.getElementById(id);
+                                        idPointer.classList.add("done"); //we add done cause that "removes" the button
+                                    }
+                                }
                             }
                         });
                     });
                 }
+
                 function updateScore(newScore){
                     score += newScore;
                     scorePointer.textContent = score;
@@ -84,11 +92,12 @@
                 function handleClicks(e){
                     let targetClue = clueDict[e.target.dataset.id];
                     e.target.classList.add("done");
+                    //we add the button to local storage
+                    localStorage.setItem(e.target.id,targetClue.value);
                     inputPointer.value = "";
                     clueTarget = targetClue;
                     cluePointer.textContent = clueTarget.question;
                     let clueAnswer = clueTarget.answer;
-
                     //we remove the weird things added to the answer and do the same below later
                     clueAnswer = clueAnswer.replace("<i>", "");
                     clueAnswer = clueAnswer.replace("</i>", "");
