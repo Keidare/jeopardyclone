@@ -86,8 +86,16 @@
                 }
 
                 function updateScore(newScore){
-                    score += newScore;
-                    scorePointer.textContent = score;
+                    let userScore = localStorage.getItem('gameScore'); 
+                    if (userScore === null){
+                        localStorage.setItem('gameScore', newScore);
+                        userScore = parseInt(localStorage.getItem('gameScore'));
+                    }
+                    else{
+                        userScore = parseInt(userScore) + newScore;
+                    }
+                    localStorage.setItem('gameScore',userScore); 
+                    scorePointer.textContent = userScore;
                 }
                 function handleClicks(e){
                     let targetClue = clueDict[e.target.dataset.id];
