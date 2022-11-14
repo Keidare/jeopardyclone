@@ -64,7 +64,7 @@
                                     <ul> </ul>`).trim();
                                 let ul = categoryColumn.querySelector("ul");
                                 for (let clue of x.clues){
-                                        ul.innerHTML += `<li><button id=${clue.id} data-id=${clue.id}>$${clue.value}</button></li>`;
+                                        ul.innerHTML += `<li><button id=${clue.id} data-id=${clue.id} class="music-tape">$${clue.value}</button></li>`;
                                         clueDict[clue.id] = {
                                             id: clue.id,
                                             question: clue.question,
@@ -86,6 +86,7 @@
                 }
 
                 function updateScore(newScore){
+                    //https://www.w3schools.com/jsref/jsref_parseint.asp
                     let userScore = localStorage.getItem('gameScore'); 
                     if (userScore === null){
                         localStorage.setItem('gameScore', newScore);
@@ -124,6 +125,7 @@
                     correctAns = correctAns.replace("<i>", "");
                     correctAns = correctAns.replace("</i>", "");
                     correctAns = correctAns.replace(/"/g, "");
+                    correctAns = correctAns.replace(/\\/g, '');
                     correctAns = correctAns.replace(/^a /, "");
                     correctAns = correctAns.replace(/^an /, ""); 
                     let userAns = inputPointer.value.trim().toLowerCase();
@@ -135,6 +137,10 @@
                         updateScore(clueTarget.value);
                     }
                     reveal(correct);
+
+                    if(localStorage.length == 31){
+                        localStorage.clear();
+                    }
                 }
 
                 function reveal(bool){
