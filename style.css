@@ -63,7 +63,7 @@ a:visited{
 }
 .scoreCount {
    color: var(--goldish-yellow);
-   font-size:1em;
+   font-size:1 em;
 }
 
 .col ul {
@@ -140,14 +140,15 @@ a:visited{
    margin-bottom: 2em;
 }
 
+.questionInput form {
+   display: flex;
+}
+
 .result,
 .questionInput.showResult form {
    display:none;
 }
 
-.questionInput form {
-   display: flex;
-}
 .questionInput form input[type="text"] {
    display: block;
    flex-grow: 1;

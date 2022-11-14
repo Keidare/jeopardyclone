@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href ="style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
         <script>
             function startGame(){
                 //variables i used
@@ -28,6 +29,9 @@
                 let wrongAnswerPointer = document.querySelector(".wrongAnswer");
                 let inputPointer = document.querySelector("input[name=userAnswer]"); 
                 let finderPointer = document.querySelector("#finder");
+
+                //https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_Web_Audio_API
+                let audio = document.querySelector("audio");
 
                 
 
@@ -64,7 +68,7 @@
                                     <ul> </ul>`).trim();
                                 let ul = categoryColumn.querySelector("ul");
                                 for (let clue of x.clues){
-                                        ul.innerHTML += `<li><button id=${clue.id} data-id=${clue.id} class="music-tape">$${clue.value}</button></li>`;
+                                        ul.innerHTML += `<li><button class="btn" id=${clue.id} data-id=${clue.id} class="music-tape">$${clue.value}</button></li>`;
                                         clueDict[clue.id] = {
                                             id: clue.id,
                                             question: clue.question,
@@ -101,6 +105,7 @@
                 function handleClicks(e){
                     let targetClue = clueDict[e.target.dataset.id];
                     e.target.classList.add("done");
+                    audio.play();
                     //we add the button to local storage
                     localStorage.setItem(e.target.id,targetClue.value);
                     inputPointer.value = "";
@@ -109,7 +114,9 @@
                     let clueAnswer = clueTarget.answer;
                     //we remove the weird things added to the answer and do the same below later
                     clueAnswer = clueAnswer.replace("<i>", "");
+                    clueAnswer = clueAnswer.replace("<l>", "");
                     clueAnswer = clueAnswer.replace("</i>", "");
+                    clueAnswer = clueAnswer.replace(/\\/g, '');
                     clueAnswer = clueAnswer.replace(/"/g, "");
                     clueAnswer = clueAnswer.replace(/^a /, "");
                     clueAnswer = clueAnswer.replace(/^an /, ""); 
@@ -161,6 +168,7 @@
 
                     setTimeout(()=>{
                         questionInputPointer.classList.remove("visible");
+                        audio.pause();
                     }, 4000); //this is so the box is gone after 4 seconds
                 }
 
@@ -184,25 +192,26 @@
     </head>
     <body>
         <section class="jeopardyBanner">
-            <p id="bannertext">Jeopardy!</p>
-            <p id="subtext">a web-based game with data from jservice.io</p>
+            <p id="bannertext" class="animate__animated animate__slideInLeft">Jeopardy!</p>
+            <p id="subtext" class="animate__animated animate__slideInLeft">a web-based game with data from jservice.io</p>
             <a href="#game">Play</a>
         </section>
         <section class ="jeopardyGame" id="game">
             <div class="board">
+                <audio src="./music/Jeopardy! Think Music, 1997.webm" loop></audio>
             </div>
-            <p id="scoreLabel">Score: <span class="scoreCount"></span></p>
+            <p id="scoreLabel">Score: <span class="scoreCount animate__animated animate__zoomIn" ></span></p>
             <div class="questionInput">
-                <div class=questionInput-child>
+                <div class="questionInput-child">
                     <h2 class="clue"></h2>
                     <form autocomplete="off">
                         <input name="userAnswer" type="text"/>
                         <button type="submit">Enter</button>
                     </form>
                     <div class="result">
-                        <p id="finder"></p>
-                        <p class="resultAns">
-                            The right answer is <span class="resultText"></span>
+                        <p id="finder" class="animate__animated animate__zoomIn"></p>
+                        <p class="resultAns animate__animated animate__zoomIn">
+                            The right answer is <span class="resultText animate__animated animate__zoomIn"></span>
                         </p>
                     </div>
                 </div>
