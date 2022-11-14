@@ -8,7 +8,7 @@
         <!--https://animate.style/-->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
         <script>
-            function startGame(){
+            function Jeopardy(){
                 //variables i used
                 let catIds = [];
                 let categories = [];
@@ -173,7 +173,7 @@
                     }, 4000); //this is so the box is gone after 4 seconds
                 }
 
-                function init(){
+                function startGame(){
                     gameBoard.addEventListener("click", event =>{
                         if (event.target.dataset.id){
                             handleClicks(event);
@@ -185,10 +185,10 @@
                     updateScore(0);
                     getData();     
                 }
-            init();
+            startGame();
         }
         //wait for everything before doing it
-        window.onload = startGame;
+        window.onload = Jeopardy;
         </script>
     </head>
     <body>
